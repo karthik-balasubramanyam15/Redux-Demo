@@ -4,7 +4,9 @@ const bindActionCreators = redux.bindActionCreators
 
 
 const CAKE_ORDERED = 'CAKE_ORDERED';
-const CAKE_RESTOCK = 'CAKE+RESTOCK';
+const CAKE_RESTOCK = 'CAKE_RESTOCK';
+const ICECREAM_ORDERED = 'ICECREAM_ORDERED';
+const ICECREAM_RESTOCKED = 'ICECREAM_RESTOCKED';
 
 //Action creator is a function that returns an object
 function orderCake() {
@@ -23,9 +25,25 @@ function restockCake(qty = 1) {
     }
 }
 
+//Action for icecream ordered and restocked
+function orderIcecream() {
+    return {
+        type: ICECREAM_ORDERED,
+        payload: 1
+    }
+}
+
+function restockIcecream(qty = 1) {
+    return {
+        type: ICECREAM_RESTOCKED,
+        payload: qty
+    }
+}
+
 //application state
 const initialState = {
     numberOfCakes: 10,
+    numberOfIcecreams: 25,
 }
 
 
@@ -47,6 +65,14 @@ const reducer = (state = initialState, action) => {
             ...state,
             numberOfCakes: state.numberOfCakes + action.payload,
         }
+        case ICECREAM_ORDERED: return {
+            ...state,
+            numberOfIcecreams: state.numberOfIcecreams - 1,
+        }
+        case ICECREAM_RESTOCKED: return {
+            ...state,
+            numberOfIcecreams: state.numberOfIcecreams + action.payload,
+        }
         default: return state;
     }
 }
@@ -67,11 +93,20 @@ const unsubscribe = store.subscribe(() => console.log('updated state: ', store.g
 // store.dispatch(orderCake());
 // store.dispatch(restockCake(3));
 
-const actions = bindActionCreators({ orderCake, restockCake }, store.dispatch); // we can bind the actions to actionCreators and it wrapped to dispatch calls
+const actions = bindActionCreators({
+    orderCake,
+    restockCake,
+    orderIcecream,
+    restockIcecream,
+}, store.dispatch); // we can bind the actions to actionCreators and it wrapped to dispatch calls
 actions.orderCake();
 actions.orderCake();
 actions.orderCake();
 actions.restockCake(5);
+
+actions.orderIcecream();
+actions.orderIcecream();
+actions.restockIcecream(5);
 
 unsubscribe();
 
