@@ -3,13 +3,22 @@ const createStore = redux.createStore;
 
 
 const CAKE_ORDERED = 'CAKE_ORDERED';
+const CAKE_RESTOCK = 'CAKE+RESTOCK';
 
 //Action creator is a function that returns an object
 function orderCake() {
     //an action is an object that has type property
     return {
         type: CAKE_ORDERED,
-        quantity: 1,
+        payload: 1,
+    }
+}
+
+//Action to restock the cake
+function restockCake(qty = 1) {
+    return {
+        type: CAKE_RESTOCK,
+        payload: qty  //renaming quantity to payload, to follow the redux convention
     }
 }
 
@@ -31,6 +40,12 @@ const reducer = (state = initialState, action) => {
             //whatever property value required for this switch case.
             numberOfCakes: state.numberOfCakes - 1,
         };
+
+        //adding case for restock
+        case CAKE_RESTOCK: return {
+            ...state,
+            numberOfCakes: state.numberOfCakes + action.payload,
+        }
         default: return state;
     }
 }
@@ -49,6 +64,7 @@ const unsubscribe = store.subscribe(() => console.log('updated state: ', store.g
 store.dispatch(orderCake());
 store.dispatch(orderCake());
 store.dispatch(orderCake());
+store.dispatch(restockCake(3));
 
 unsubscribe();
 
