@@ -1,6 +1,7 @@
 const redux = require('redux');
 const createStore = redux.createStore;
 const bindActionCreators = redux.bindActionCreators
+const combineReducers = redux.combineReducers
 
 
 const CAKE_ORDERED = 'CAKE_ORDERED';
@@ -40,23 +41,27 @@ function restockIcecream(qty = 1) {
     }
 }
 
-//application state
-const initialState = {
+//application state 
+//**** if the number of variables in initial state increases then the redux complexity also increases
+// const initialState = {
+//     numberOfCakes: 10,
+//     numberOfIcecreams: 25,
+// }
+
+const initialCakeState = {
     numberOfCakes: 10,
-    numberOfIcecreams: 25,
+}
+
+const initialIcecreamState = {
+    numberOfIcecreams: 20,
 }
 
 
-
-//reducer
-// (previousState, action) => newState
-
-const reducer = (state = initialState, action) => {
+//separation of concerns
+const cakeReducer = (state = initialCakeState, action) => {
     switch (action.type) {
         case CAKE_ORDERED: return {
-            ...state, //there can be multiple states in initialState and in this scenario we are only 
-            //changing 1 properties value, so we first copy the state value as it is and then change 
-            //whatever property value required for this switch case.
+            ...state,
             numberOfCakes: state.numberOfCakes - 1,
         };
 
@@ -65,6 +70,12 @@ const reducer = (state = initialState, action) => {
             ...state,
             numberOfCakes: state.numberOfCakes + action.payload,
         }
+        default: return state;
+    }
+}
+
+const icecreamReducer = (state = initialIcecreamState, action) => {
+    switch (action.type) {
         case ICECREAM_ORDERED: return {
             ...state,
             numberOfIcecreams: state.numberOfIcecreams - 1,
@@ -77,21 +88,17 @@ const reducer = (state = initialState, action) => {
     }
 }
 
-//Redux Store
-//1. Holds application state
-//2. allows access to state via getState()
-//3. allows state to be updated via dispatch(action)
-//4. registers listeners via subscribe(listener)
-//5. handles unregistering of listeners via the method returned by the subscribe(listeners)
-const store = createStore(reducer);
+const rootReducer = combineReducers({
+    cake: cakeReducer,
+    icecream: icecreamReducer
+})
+
+//Even when there are multiple reducers, store can only accept 1 reducer 
+//and hence we combine the reducer and pass that to the store
+const store = createStore(rootReducer);
 console.log('Initial State: ', store.getState());
 
 const unsubscribe = store.subscribe(() => console.log('updated state: ', store.getState()));
-
-// store.dispatch(orderCake());
-// store.dispatch(orderCake());
-// store.dispatch(orderCake());
-// store.dispatch(restockCake(3));
 
 const actions = bindActionCreators({
     orderCake,
